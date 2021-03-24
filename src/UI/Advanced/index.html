@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Samuel Vargas">
+    <meta name="viewport" content="search, networks, linked, links, node">
+    <link rel="stylesheet" type="text/css" href="css/index.css"/>
+    <title>Pesquisa Avançada Ao Epistolarium</title>
+</head>
+<body>
+    <form action="" onsubmit="return false">
+        <div id="container">
+            <p id="title">Pesquisa Avançada ao Epistolarium</p>
+            <p id="subtitle">Pesquisa Avançada ao Epistolarium</p>
+            <div>
+                
+                <input required type="text" name="query_name" id="query_name" value="" placeholder="Nome da Query"/>
+                <br>
+                <br>
+                <br>
+                <label for="system_out">Selecione o Sistema</label>
+                <br>
+                <select required  id="system_out">
+                    <option value="GEPHI">Gephi</option>
+                    <option value="VOS">VOSviewer</option>
+                </select>
+                <br>
+                <br>
+                <br>
+                <label for="visua_type">Selecione a Visualização</label>
+                <br>
+                <select required  id="visua_type">
+                    <option value="persons/graph">Rede Correspondente</option>
+                    <option value="cocitation">Rede de Cocitação</option>
+                </select>
+                <br>
+                <br>
+                <br>
+                <label><input type="checkbox" name="weight" id="weight"/> Considerar o Peso(Weight)</label>
+                <br>
+                <br>
+                <br>
+                <label for="files_to_come">Arquivos Inclusos</label>
+                <br>
+                <select required id="files_to_come">
+                    <option value="json">Apenas o Aquivo JSON (raw file)</option>
+                    <option value="csv">Apenas o Arquivo CSV (convertido)</option>
+                    <option selected value="all">Todos os Arquivos</option>
+                </select>
+                <br>
+                <br>
+                <button onclick="search()" id="button_send_1">Baixar Arquivo Zip</button>
+            </div>
+        </form>
+    </div>
+    <script src="js/index.js"></script>
+</body>
+</html>
