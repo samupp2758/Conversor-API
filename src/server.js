@@ -16,7 +16,7 @@ const port = 3591
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, './temp/Raw')
+      cb(null, __dirname+ '/temp/Raw')
     },
     filename: function (req, file, cb) {
       cb(null, Date.now() + "_" + file.originalname)
@@ -64,21 +64,21 @@ app.post('/generate/GEPHI',upload.none(), async (req, res) => {
           return obj;
       })
       var fileTemp_link = new Date().getTime()+'_'+req.body.query+'_link.csv'
-      var fileTempName_link = await './temp/Raw/'+fileTemp_link;
+      var fileTempName_link = await __dirname+ '/temp/Raw/'+fileTemp_link;
       const csv_link = await new ObjectsToCsv(await in_array_obj_links).toDisk(await fileTempName_link);
 
       var fileTemp_node = new Date().getTime()+'_'+req.body.query+'_node.csv'
-      var fileTempName_node = await './temp/Raw/'+fileTemp_node;
+      var fileTempName_node = await __dirname+ '/temp/Raw/'+fileTemp_node;
       const csv_node = await new ObjectsToCsv(await in_array_obj_nodes).toDisk(await fileTempName_node);
       
       var json_name = new Date().getTime()+'_'+req.body.query+'_raw.json';
-      var json_path_name = './temp/Raw/'+json_name
+      var json_path_name = __dirname+ '/temp/Raw/'+json_name
       fs.writeFileSync(json_path_name, JSON.stringify(await data));
 
 
 
       var zip_name = new Date().getTime()+'_'+req.body.query+'.zip'
-      var zip_final = './temp/Results/'+zip_name;
+      var zip_final = __dirname+ '/temp/Results/'+zip_name;
       const output = fs.createWriteStream(zip_final);
       const archive = archiver('zip', {
         zlib: { level: 9 } // Sets the compression level.
@@ -154,13 +154,13 @@ app.use('/search/advanced',express.static(__dirname+'/UI/Advanced'))
 
 app.get('/view/:file',upload.none(), async (req, res) => {
   var response_s = false
-  res.download('./temp/Results/'+req.params.file);
+  res.download(__dirname+ '/temp/Results/'+req.params.file);
 })
 
 app.get('/delete/:file',upload.none(), async (req, res) => {
   var response_s = true;
   try{
-    var query_ = await fs.unlinkSync('./temp/Results/'+req.params.file);
+    var query_ = await fs.unlinkSync(__dirname+ '/temp/Results/'+req.params.file);
     res.send({
       data_response:query_,
       worked:response_s
@@ -175,7 +175,7 @@ app.get('/delete/:file',upload.none(), async (req, res) => {
 })
 
 var removeFiles_oldthan = () => {
-  var uploadsDir = './temp/Results';
+  var uploadsDir = __dirname+ '/temp/Results';
 
 fs.readdir(uploadsDir, function(err, files) {
   files.forEach(function(file, index) {
