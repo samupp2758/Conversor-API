@@ -12,7 +12,7 @@ const path = require('path')
 const app = express()
 const findRemoveSync = require('find-remove');
 const port = 3591
-const URL_base = 'http://filhodeenton.duckbox.com.br'
+const URL_base = 'http://localhost'
 
 
 const storage = multer.diskStorage({
@@ -51,7 +51,7 @@ app.post('/generate/GEPHI',upload.none(), async (req, res) => {
               'Id': index,
               'Label':'',
               'timeset':'',
-              'Weight':req.body.w == true ? single.w : '1'
+              'Weight':req.body.w == 'true'  ? single.w : '1'
           }
           return obj;
       })
@@ -132,7 +132,7 @@ app.post('/generate/GEPHI',upload.none(), async (req, res) => {
     
     await archive.finalize();
 
-    await res.send({data_response:URL_base+':'+port+'/view/'+zip_name,worked:response_s})
+    await res.send({body:req.body,data_response:URL_base+':'+port+'/view/'+zip_name,worked:response_s})
     await fs.unlinkSync(await fileTempName_link);
     await fs.unlinkSync(await fileTempName_node);
     await fs.unlinkSync(await json_path_name);
@@ -160,7 +160,7 @@ app.post('/generate/VOS',upload.none(), async (req, res) => {
                 'ID': index,
                 'Label':'',
                 'timeset':'',
-                'strength':req.body.w == true ? single.w : '1'
+                'strength':req.body.w == 'true' ? single.w : '1'
             }
             return obj;
         })
@@ -241,7 +241,7 @@ app.post('/generate/VOS',upload.none(), async (req, res) => {
       
       await archive.finalize();
 
-      await res.send({data_response:URL_base+':'+port+'/view/'+zip_name,worked:response_s})
+      await res.send({body:req.body,data_response:URL_base+':'+port+'/view/'+zip_name,worked:response_s})
       await fs.unlinkSync(await fileTempName_link);
       await fs.unlinkSync(await fileTempName_node);
       await fs.unlinkSync(await json_path_name);
