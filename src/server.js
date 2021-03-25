@@ -12,6 +12,7 @@ const path = require('path')
 const app = express()
 const findRemoveSync = require('find-remove');
 const port = 3591
+const URL_base = 'http://filhodeenton.duckbox.com.br'
 
 
 const storage = multer.diskStorage({
@@ -37,7 +38,116 @@ app.use(cors())
 app.use(express.json())
 
 app.post('/generate/GEPHI',upload.none(), async (req, res) => {
-    var response_s = true;
+  var response_s = true;
+  console.log("Cli Req")
+    const url = 'http://tc13.huygens.knaw.nl/glp-ckcc/'+req.body.type+'/'+req.body.query+'?maxNodes=0'
+      fetch(url).then(response => response.json())
+      .then(async data => {
+        var in_array_obj_links = await data['links'].map((single,index) => {
+          var obj = {
+              'Source': single.source,
+              'Target': single.target,
+              'Type': 'Undirected',
+              'Id': index,
+              'Label':'',
+              'timeset':'',
+              'Weight':req.body.w == true ? single.w : '1'
+          }
+          return obj;
+      })
+
+      var in_array_obj_nodes = await data['nodes'].map((single,index) => {
+        var obj = {
+            'Id': index,
+            'Label':(single.name.split(',').length == 1 ? single.name.split(',')[0] : single.name.split(',')[1]).slice(1),
+            'timeset':'',
+        }
+        return obj;
+    })
+    var fileTemp_link = new Date().getTime()+'_'+req.body.query+'_link.csv'
+    var fileTempName_link = await __dirname+ '/temp/Raw/'+fileTemp_link;
+    const csv_link = await new ObjectsToCsv(await in_array_obj_links).toDisk(await fileTempName_link);
+
+    var fileTemp_node = new Date().getTime()+'_'+req.body.query+'_node.csv'
+    var fileTempName_node = await __dirname+ '/temp/Raw/'+fileTemp_node;
+    const csv_node = await new ObjectsToCsv(await in_array_obj_nodes).toDisk(await fileTempName_node);
+    
+    var json_name = new Date().getTime()+'_'+req.body.query+'_raw.json';
+    var json_path_name = __dirname+ '/temp/Raw/'+json_name
+    fs.writeFileSync(json_path_name, JSON.stringify(await data));
+
+
+
+    var zip_name = new Date().getTime()+'_'+req.body.query+'.zip'
+    var zip_final = __dirname+ '/temp/Results/'+zip_name;
+    const output = fs.createWriteStream(zip_final);
+    const archive = archiver('zip', {
+      zlib: { level: 9 } // Sets the compression level.
+    });
+    archive.pipe(output);
+
+    output.on('close', function() {
+      console.log(archive.pointer() + ' total bytes');
+      console.log('archiver has been finalized and the output file descriptor has closed.');
+    });
+
+    // This event is fired when the data source is drained no matter what was the data source.
+    // It is not part of this library but rather from the NodeJS Stream API.
+    // @see: https://nodejs.org/api/stream.html#stream_event_end
+    output.on('end', function() {
+      console.log('Data has been drained');
+    });
+
+    // good practice to catch warnings (ie stat failures and other non-blocking errors)
+    archive.on('warning', function(err) {
+      if (err.code === 'ENOENT') {
+        // log warning
+      } else {
+        // throw error
+        throw err;
+      }
+    });
+
+    // good practice to catch this error explicitly
+    archive.on('error', function(err) {
+      throw err;
+    });
+    if(req.body.d == null){
+    archive.append(await fs.createReadStream(await fileTempName_link), { name: fileTemp_link });
+    archive.append(await fs.createReadStream(await fileTempName_node), { name: fileTemp_node });
+    archive.append(await fs.createReadStream(await json_path_name), { name: json_name });
+    }else if(req.body.d == 'json'){
+      archive.append(await fs.createReadStream(await json_path_name), { name: json_name });
+    }else if(req.body.d == 'csv'){
+      archive.append(await fs.createReadStream(await fileTempName_link), { name: fileTemp_link });
+      archive.append(await fs.createReadStream(await fileTempName_node), { name: fileTemp_node });
+    }else{
+    archive.append(await fs.createReadStream(await fileTempName_link), { name: fileTemp_link });
+    archive.append(await fs.createReadStream(await fileTempName_node), { name: fileTemp_node });
+    archive.append(await fs.createReadStream(await json_path_name), { name: json_name });
+    }
+
+
+
+    
+    await archive.finalize();
+
+    await res.send({data_response:URL_base+':'+port+'/view/'+zip_name,worked:response_s})
+    await fs.unlinkSync(await fileTempName_link);
+    await fs.unlinkSync(await fileTempName_node);
+    await fs.unlinkSync(await json_path_name);
+      })
+      .catch(er => {
+        response_s = false;
+        res.send({data_response:"Error: The Server Was Not Able To Complete this query.Reason:"+er.message,worked:response_s});
+      })
+
+    
+})
+
+
+app.post('/generate/VOS',upload.none(), async (req, res) => {
+  var response_s = true;
     console.log("Cli Req")
       const url = 'http://tc13.huygens.knaw.nl/glp-ckcc/'+req.body.type+'/'+req.body.query+'?maxNodes=0'
         fetch(url).then(response => response.json())
@@ -47,10 +157,10 @@ app.post('/generate/GEPHI',upload.none(), async (req, res) => {
                 'Source': single.source,
                 'Target': single.target,
                 'Type': 'Undirected',
-                'Id': index,
+                'ID': index,
                 'Label':'',
                 'timeset':'',
-                'Weight':req.body.w == "true" ? single.w : '1'
+                'strength':req.body.w == true ? single.w : '1'
             }
             return obj;
         })
@@ -131,7 +241,7 @@ app.post('/generate/GEPHI',upload.none(), async (req, res) => {
       
       await archive.finalize();
 
-      await res.send({data_response:'http://filhodeenton.duckbox.com.br:3591/view/'+zip_name,worked:response_s})
+      await res.send({data_response:URL_base+':'+port+'/view/'+zip_name,worked:response_s})
       await fs.unlinkSync(await fileTempName_link);
       await fs.unlinkSync(await fileTempName_node);
       await fs.unlinkSync(await json_path_name);
@@ -140,14 +250,6 @@ app.post('/generate/GEPHI',upload.none(), async (req, res) => {
           response_s = false;
           res.send({data_response:"Error: The Server Was Not Able To Complete this query.Reason:"+er.message,worked:response_s});
         })
-
-    
-})
-
-
-app.post('/generate/VOS',upload.none(), async (req, res) => {
-  var response_s = false
-  res.send({data_response:"Error: Wait For A Version With VOSVIEWER Support!!",worked:response_s});
 })
 
 app.use('/search/advanced',express.static(__dirname+'/UI/Advanced'))
