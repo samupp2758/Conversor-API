@@ -6,7 +6,7 @@ var search = () => {
     var system_out = document.getElementById('system_out').value;
     var query_name = document.getElementById('query_name').value;
     var visua_type = document.getElementById('visua_type').value;
-    var weight = document.getElementById('weight').value;
+    var weight = document.getElementById('weight').checked;
     var files_to_come = document.getElementById('files_to_come').value;
 
     var form = new FormData();
