@@ -12,7 +12,7 @@ const path = require('path')
 const app = express()
 const findRemoveSync = require('find-remove');
 const port = 3591
-const URL_base = 'http://localhost'
+const URL_base = 'http://filhodeenton.duckbox.com.br'
 
 
 const storage = multer.diskStorage({
