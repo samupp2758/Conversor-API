@@ -149,10 +149,21 @@ app.post('/generate/GEPHI',upload.none(), async (req, res) => {
 app.post('/generate/VOS',upload.none(), async (req, res) => {
   var response_s = true;
     console.log("Cli Req")
-      const url = 'http://tc13.huygens.knaw.nl/glp-ckcc/'+req.body.type+'/'+req.body.query+'?maxNodes=0'
+      const url = 'http://tc13.huygens.knaw.nl/glp-ckcc/'+req.body.type+'/'+req.body.query+'?maxNodes=300000000'
         fetch(url).then(response => response.json())
         .then(async data => {
+      var final_gml_string = "graph\n[\n  Creator \"Samuel Vargas\"\n  directed 0\n";
+      var in_array_obj_nodes = await data['nodes'].map((single,index) => {
+        final_gml_string += "  node\n  [\n    id "+index+"\n    label \""+(single.name.split(',').length == 1 ? single.name.split(',')[0] : single.name.split(',')[1]).slice(1)+"\"\n    graphics\n    [\n      w 10.0\n      h 10.0\n      d 10.0\n      fill \"#000000\"\n    ]\n  ]\n"
+        var obj = {
+            'Id': index,
+            'Label':(single.name.split(',').length == 1 ? single.name.split(',')[0] : single.name.split(',')[1]).slice(1),
+            'timeset':'',
+        }
+        return obj;
+    })
           var in_array_obj_links = await data['links'].map((single,index) => {
+            final_gml_string += "  edge\n  [\n    id "+index+"\n    source "+single.source+'\n    target '+single.target+'\n    value '+(req.body.w == 'true' ? single.w : 1)+'\n  ]\n'
             var obj = {
                 'Source': single.source,
                 'Target': single.target,
@@ -165,33 +176,17 @@ app.post('/generate/VOS',upload.none(), async (req, res) => {
             return obj;
         })
 
-        var in_array_obj_nodes = await data['nodes'].map((single,index) => {
-          var obj = {
-              'Id': index,
-              'Label':(single.name.split(',').length == 1 ? single.name.split(',')[0] : single.name.split(',')[1]).slice(1),
-              'timeset':'',
-          }
-          return obj;
-      })
-      var fileTemp_link = new Date().getTime()+'_'+req.body.query+'_link.csv'
-      var fileTempName_link = await __dirname+ '/temp/Raw/'+fileTemp_link;
-      const csv_link = await new ObjectsToCsv(await in_array_obj_links).toDisk(await fileTempName_link);
-
-      var fileTemp_node = new Date().getTime()+'_'+req.body.query+'_node.csv'
-      var fileTempName_node = await __dirname+ '/temp/Raw/'+fileTemp_node;
-      const csv_node = await new ObjectsToCsv(await in_array_obj_nodes).toDisk(await fileTempName_node);
+        final_gml_string += "\n]"
       
-      var json_name = new Date().getTime()+'_'+req.body.query+'_raw.json';
-      var json_path_name = __dirname+ '/temp/Raw/'+json_name
-      fs.writeFileSync(json_path_name, JSON.stringify(await data));
-
-
+      var gml_name = new Date().getTime()+'_'+req.body.query+'_raw.gml';
+      var  final_gml_path = __dirname+ '/temp/Raw/'+gml_name
+      fs.writeFileSync(final_gml_path, await final_gml_string);
 
       var zip_name = new Date().getTime()+'_'+req.body.query+'.zip'
       var zip_final = __dirname+ '/temp/Results/'+zip_name;
       const output = fs.createWriteStream(zip_final);
-      const archive = archiver('zip', {
-        zlib: { level: 9 } // Sets the compression level.
+     const archive = archiver('zip', {
+       zlib: { level: 9 } // Sets the compression level.
       });
       archive.pipe(output);
 
@@ -221,30 +216,16 @@ app.post('/generate/VOS',upload.none(), async (req, res) => {
       archive.on('error', function(err) {
         throw err;
       });
-      if(req.body.d == null){
-      archive.append(await fs.createReadStream(await fileTempName_link), { name: fileTemp_link });
-      archive.append(await fs.createReadStream(await fileTempName_node), { name: fileTemp_node });
-      archive.append(await fs.createReadStream(await json_path_name), { name: json_name });
-      }else if(req.body.d == 'json'){
-        archive.append(await fs.createReadStream(await json_path_name), { name: json_name });
-      }else if(req.body.d == 'csv'){
-        archive.append(await fs.createReadStream(await fileTempName_link), { name: fileTemp_link });
-        archive.append(await fs.createReadStream(await fileTempName_node), { name: fileTemp_node });
-      }else{
-      archive.append(await fs.createReadStream(await fileTempName_link), { name: fileTemp_link });
-      archive.append(await fs.createReadStream(await fileTempName_node), { name: fileTemp_node });
-      archive.append(await fs.createReadStream(await json_path_name), { name: json_name });
-      }
+     archive.append(await fs.createReadStream(await final_gml_path), { name: gml_name });
+      
 
 
 
       
       await archive.finalize();
-
-      await res.send({body:req.body,data_response:URL_base+':'+port+'/view/'+zip_name,worked:response_s})
-      await fs.unlinkSync(await fileTempName_link);
-      await fs.unlinkSync(await fileTempName_node);
-      await fs.unlinkSync(await json_path_name);
+      await fs.unlinkSync(await final_gml_path);
+      await res.send({body:req.body,gml_str:final_gml_string,data_response:URL_base+':'+port+'/view/'+zip_name,worked:response_s})
+     
         })
         .catch(er => {
           response_s = false;
