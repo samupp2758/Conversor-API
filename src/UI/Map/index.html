@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="./css/index.css">
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.css" />
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid-theme.min.css" />
+    <title>Map Based On Query</title>
+</head>
+<body>
+    <p class="page_title">Map Based On Query</p>
+    <div class="grid_guy">
+        <div class="container_div">
+            <div class="title_box_container">
+                <p class="title_box">Digite a Query</p>
+            </div>
+            <div class="action_container_1">
+                <input type="text" name="query" id="query" placeholder="Insira a Query"/>
+                <button id="action_query" onclick="update_map()">Atualizar Gráfico</button>
+            </div>
+        </div>
+        <div class="container_div">
+            <div class="title_box_container">
+                <p class="title_box">Mapa Resultante</p>
+            </div>
+            <div id="map" style="width:100%;height:400px;margin:20px;margin-top:-10px;"></div>  
+        </div>
+    </div>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"> </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.3/jsgrid.min.js"></script>
+    <script src="./js/index.js"></script>
+    
+</body>
+</html>

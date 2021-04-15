@@ -1,18 +1,18 @@
-const express = require('express')
-const cors = require('cors')
+const express = require('express');
+const cors = require('cors');
 const multer = require('multer');
 const fetch = require('node-fetch');
 const ObjectsToCsv = require('objects-to-csv');
 const fs = require('fs');
 const archiver = require('archiver');
 const { response } = require('express');
-const rimraf = require('rimraf')
+const rimraf = require('rimraf');
 const serveIndex = require('serve-index');
-const path = require('path')
-const app = express()
+const path = require('path');
+const app = express();
 const findRemoveSync = require('find-remove');
-const port = 3591
-const URL_base = 'http://filhodeenton.duckbox.com.br'
+const port = 3591;
+const URL_base = 'http://localhost'
 
 
 const storage = multer.diskStorage({
@@ -235,6 +235,8 @@ app.post('/generate/VOS',upload.none(), async (req, res) => {
 
 app.use('/search/advanced',express.static(__dirname+'/UI/Advanced'))
 
+app.use('/search/map',express.static(__dirname+'/UI/Map'))
+
 app.get('/view/:file',upload.none(), async (req, res) => {
   var response_s = false
   res.download(__dirname+ '/temp/Results/'+req.params.file);
@@ -285,4 +287,4 @@ fs.readdir(uploadsDir, function(err, files) {
 setInterval(removeFiles_oldthan, 60000);
 
 
-app.listen(port, () => console.log(`Example app listening at http://filhodeenton.duckbox.com.br:${port}`))
+app.listen(port, () => console.log("Example app listening at "+URL_base+":"+port))
