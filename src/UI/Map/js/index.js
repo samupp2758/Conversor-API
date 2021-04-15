@@ -5,7 +5,6 @@ var map = L.map('map').setView([51.505, 4.509], 6);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: ''
 }).addTo(map);
-
 var update_map = async () => {
 
     var query_input = document.getElementById('query')
@@ -84,11 +83,11 @@ var update_map = async () => {
         });
     })
     
-    Promise.all(requests).then(() => {
+    Promise.all(requests).then(async() => {
         
         console.log(final)
-        
-        final.map(async (item)=>{
+        await clearMap(map)
+        await final.map(async (item)=>{
             var _0i = await item[0]
             var _1i = await item[1]
 
@@ -128,4 +127,17 @@ var update_map = async () => {
 
 
 
+}
+
+function clearMap(m) {
+    for(var i in m._layers) {
+        if(m._layers[i]._path != undefined) {
+            try {
+                m.removeLayer(m._layers[i]);
+            }
+            catch(e) {
+                console.log("problem with " + e + m._layers[i]);
+            }
+        }
+    }
 }
