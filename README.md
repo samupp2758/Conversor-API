@@ -1,9 +1,5 @@
 # Conversor-API
 
-EndPoint Tree
-
-# http://filhodeenton.duckbox.com.br:3591
-
 ## .../generate/{System}
 ### Makes Contact with Epistolarium's Server itself and return the search.
 ### Method = POST
