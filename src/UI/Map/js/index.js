@@ -1,4 +1,4 @@
-var startpoint =  "http://filhodeenton.duckbox.com.br:3591/";
+var startpoint =  "http://foo.bar.com:3591/";
 
 var map = L.map('map').setView([51.505, 4.509], 6);
 
