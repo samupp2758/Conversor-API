@@ -1,4 +1,8 @@
+
 # Conversor-API
+
+Express/NodeJS library created to get values from database Epistolarium and convert to softwares for constructing and visualizing bibliometric networks such as GEPHI system and VOSviewer.
+
 
 ## .../generate/{System}
 ### Makes Contact with Epistolarium's Server itself and return the search.
