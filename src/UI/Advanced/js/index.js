@@ -1,4 +1,4 @@
-var startpoint =  "http://filhodeenton.duckbox.com.br:3591/";
+var startpoint =  "foobar.com:3591/";
 
 var search = () => {
 
